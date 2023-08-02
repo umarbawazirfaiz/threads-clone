@@ -15,26 +15,26 @@
 </template>
 
 <script setup lang="ts">
-    import MainLayout from '~/layouts/MainLayout.vue'
+import MainLayout from '~/layouts/MainLayout.vue'
 
-    import { Post } from '~/types/post'
+import { Post } from '~/types/post'
 
-    import { useUserStore } from '~/stores/user';
-    const userStore = useUserStore()
+import { useUserStore } from '~/stores/user';
+const userStore = useUserStore()
 
-    let posts = ref<Post[]>([])
-    let isPosts = ref(false)
-    let isLoading= ref(false)
+let posts = ref<Post[]>([])
+let isPosts = ref(false)
+let isLoading = ref(false)
 
-    onBeforeMount(() => {
-        isPosts.value = true
-        posts.value = [
-            {
-                 name: 'Jogn Weeks Dev',
-                 image: 'http://placehold.co/100',
-                 text: 'This is the title',
-                 picture: 'http://placehold.co/500',
-            }
-        ]
-    })
+onBeforeMount(() => {
+    isPosts.value = true
+    posts.value = [
+        {
+            name: 'Jogn Weeks Dev',
+            image: 'http://placehold.co/100',
+            text: 'This is the title',
+            picture: 'http://placehold.co/500',
+        }
+    ]
+})
 </script>

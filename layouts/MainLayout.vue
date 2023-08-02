@@ -16,7 +16,7 @@
                     <Icon name="material-symbols:home-outline" size="35" color="#fff" />
                 </button>
                 <button @click="userStore.isMenuOverlay = true" class="w-full h-full">
-                    <Icon class="mb-1" name="material-symbols:edit-square-outline-round" size="32" color="#fff" />
+                    <Icon class="mb-1" name="material-symbols:edit-square-outline-rounded" size="32" color="#fff" />
                 </button>
                 <button @click="userStore.isLogoutOverlay = true" class="w-full h-full">
                     <Icon class="mb-1" name="ph:sign-out" size="32" color="#fff" />
