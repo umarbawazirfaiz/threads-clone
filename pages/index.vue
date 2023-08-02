@@ -1,5 +1,6 @@
 <template>
     <MainLayout>
+        <!-- <div class="text-white">{{ user }}</div> -->
         <div id="IndexPage" class="w-full overflow-auto">
             <div class="mx-auto max-w-[500px] overflow-hidden">
                 <div id="Posts" class="px-4 max-w-[600px] mx-auto">
@@ -18,8 +19,9 @@
 import MainLayout from '~/layouts/MainLayout.vue'
 
 import { Post } from '~/types/post'
-
 import { useUserStore } from '~/stores/user';
+
+const user = useSupabaseUser()
 const userStore = useUserStore()
 
 let posts = ref<Post[]>([])
