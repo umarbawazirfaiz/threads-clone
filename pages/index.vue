@@ -9,6 +9,22 @@
                             <PostCard :post="post" @isDeleted="posts = []" />
                         </div>
                     </div>
+                    <div v-else>
+                        <client-only>
+                             <div v-if="isLoading" class="mt-20 w-full flex items-center justify-center mx-auto">
+                                <div class="text-white mx-auto flex flex-col items-center justify-center">
+                                    <Icon name="eos-icons:bubble-loading" size="50" color="#fff" />
+                                    <div class="w-full mt-1">Loading...</div>
+                                </div>
+                             </div>
+                             <div v-if="!isLoading" class="mt-20 w-full flex items-center justify-center mx-auto">
+                                <div class="text-white mx-auto flex flex-col items-center justify-center">
+                                    <Icon name="tabler:mood-empty" size="50" color="#fff" />
+                                    <div class="w-full">Make the first post!</div>
+                                </div>
+                             </div>
+                        </client-only>
+                    </div>
                 </div>
             </div>
         </div>
@@ -28,15 +44,29 @@ let posts = ref<Post[]>([])
 let isPosts = ref(false)
 let isLoading = ref(false)
 
-onBeforeMount(() => {
-    isPosts.value = true
-    posts.value = [
-        {
-            name: 'Jogn Weeks Dev',
-            image: 'http://placehold.co/100',
-            text: 'This is the title',
-            picture: 'http://placehold.co/500',
-        }
-    ]
+onBeforeMount(async () => {
+    try {
+        isLoading.value = true
+        await userStore.getAllPosts()
+        isLoading.value = false
+    } catch (error) {
+        console.log(error);
+    }
 })
+
+onMounted(() => {
+    watchEffect(() => {
+        if (userStore.posts && userStore.posts.length >= 1) {
+            posts.value = userStore.posts
+            isPosts.value = true
+        }
+    })
+})
+
+watch(() => posts.value, () => {
+    if (userStore.posts && userStore.posts.length >= 1) {
+        posts.value = userStore.posts
+        isPosts.value = true
+    }
+}, { deep: true })
 </script>

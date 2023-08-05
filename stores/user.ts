@@ -12,5 +12,12 @@ export const useUserStore = defineStore('user', {
         posts: [],
         isMenuOverlay: false,
         isLogoutOverlay: false
-    } as UserState)
+    } as UserState),
+    actions: {
+        async getAllPosts() {
+            let res = await useFetch<Post[]>('/api/get-all-posts')
+            this.posts = res.data.value as Post[]
+            return res.data
+        }
+    }
 })

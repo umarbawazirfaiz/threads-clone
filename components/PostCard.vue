@@ -8,7 +8,7 @@
                     <div class="ml-2 font-semibold text-[18px]">{{ post.name }}</div>
                 </div>
 
-                <div @click="isMenu = !isMenu" class="relative">
+                <div v-if="user && user.identities![0].user_id == post.userId" @click="isMenu = !isMenu" class="relative">
                     <button :disabled="isDeleting"
                         class="flex items-center text-white p-1 h-[24px] w-[24px] hover:bg-gray-800 rounded-full cursor-pointer"
                         :class="isMenu ? 'bg-gray-800' : ''">
@@ -17,7 +17,7 @@
                     </button>
 
                     <div v-if="isMenu" class="absolute border border-gray-600 right-0 z-20 mt-1 rounded">
-                        <button
+                        <button @click="deletePost(post.id, post.picture)"
                             class="flex items-center rounded gap-2 text-red-500 justify-between bg-black w-full pl-4 pr-3 py-1 hover:bg-gray-900">
                             <div>Delete</div>
                             <Icon name="solar:trash-bin-trash-broken" size="20" />
@@ -35,11 +35,13 @@
                     <div class="py-2 text-gray-300">
                         {{ post.text }}
                     </div>
-                    <img v-if="post && post.picture" class="mx-auto w-full mt-2 pr-2 rounded" :src="post.picture" />
+                    <img v-if="post && post.picture" class="mx-auto w-full mt-2 pr-2 rounded"
+                        :src="runtimeConfig.public.bucketUrl + post.picture" />
 
                     <div class="absolute mt-2 w-full ml-2">
                         <button :disabled="isLike" class="flex items-center gap-1">
-                            <Icon class="p-1 text-white hover:bg-gray-800 rounded-full cursor-pointer" name="mdi:cards-heart-outline" size="28" />
+                            <Icon class="p-1 text-white hover:bg-gray-800 rounded-full cursor-pointer"
+                                name="mdi:cards-heart-outline" size="28" />
                         </button>
                         <div class="relatiuve text-sm text-gray-500">
                             <div>
@@ -50,7 +52,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="relative inline-block text-gray-500 pt-1 pb-1.5">
                 <div class="flex items center">
                     <div class="flex items-center flex-wrap text-white gap-1 w-[42px]">
@@ -60,7 +62,7 @@
                         </div>
                         <div class="flex items-center">
                             <img class="rounded-full h-[11px] ml-4" src="https://picsum.photos/id/99/50" />
-                        </div> 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -73,7 +75,8 @@
 <script setup lang="ts">
 import { Post } from '~/types/post'
 import { useUserStore } from '~/stores/user';
-const userStore = useUserStore()
+
+const user = useSupabaseUser()
 
 const runtimeConfig = useRuntimeConfig()
 let isMenu = ref(false)
@@ -86,6 +89,45 @@ interface PostCardProps {
 }
 const props = defineProps<PostCardProps>()
 
-// const client = useSupabaseClient()
-// const user = useSupabaseUser()
+const userStore = useUserStore()
+const client = useSupabaseClient()
+
+const hasLikedComputed = computed(() => {
+    if (!user.value) return
+    let res = false
+
+    props.post.likes.forEach(like => {
+        if (like.userId == user.value?.identities![0].user_id && like.postId == props.post.id) {
+            res = true
+        }
+    })
+
+    return res
+})
+
+const deletePost = async (id: number, picture: string) => {
+    let res = confirm('Are you sure want to delete this post?')
+
+    if (!res) return
+
+    try {
+        isMenu.value = !isMenu
+        isDeleting.value = true
+
+        if (picture != '') {
+            const { data, error } = await client.storage.from('threads-clone-files').remove([picture])
+            console.log({ data, error });
+        }
+        
+        await useFetch(`/api/delete-post/${id}`, { method: 'DELETE' })
+        emit('isDeleted', true)
+
+        isDeleting.value = false
+
+        await userStore.getAllPosts()
+    } catch (error) {
+        console.log(error);
+        isDeleting.value = false
+    }
+}
 </script>
